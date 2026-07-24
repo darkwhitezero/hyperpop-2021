@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400"
+     role="img" aria-labelledby="t d">
+  <title id="t">hyperpop-2021</title>
+  <desc id="d">Одностраничный визуальный срез русского гиперпопа 2021 года: шесть релизов, эстетика и цифры прослушиваний.</desc>
+
+  <defs>
+    <clipPath id="card"><rect width="1200" height="400" rx="26"/></clipPath>
+
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#ffffff" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+
+    <radialGradient id="glowBlue" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#5bb9ff" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#5bb9ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowPink" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ff6aa7" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#ff6aa7" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="logo" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5bb9ff"/>
+      <stop offset="0.55" stop-color="#9ad9ff"/>
+      <stop offset="1" stop-color="#ff6aa7"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5bb9ff" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#ff6aa7" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+
+  <g clip-path="url(#card)">
+    <rect width="1200" height="400" fill="#0a0f1f"/>
+    <ellipse cx="120" cy="40" rx="520" ry="330" fill="url(#glowBlue)"/>
+    <ellipse cx="1080" cy="60" rx="420" ry="300" fill="url(#glowPink)"/>
+    <ellipse cx="240" cy="420" rx="380" ry="260" fill="url(#glowBlue)"/>
+    <rect width="1200" height="400" fill="url(#grid)"/>
+  </g>
+  <rect x="0.5" y="0.5" width="1199" height="399" rx="26" fill="none" stroke="#ffffff" stroke-opacity="0.12"/>
+
+  <!-- title block -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <text x="64" y="96" font-size="20" letter-spacing="4" fill="#ff6aa7">// RU HYPERPOP · 2021</text>
+  </g>
+
+  <text x="64" y="188" font-family="Segoe UI, -apple-system, BlinkMacSystemFont, Helvetica Neue, Arial, sans-serif"
+        font-size="68" font-weight="800" font-style="italic" letter-spacing="-1.5" fill="url(#logo)">HYPERPOP-2021</text>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#ffffff" fill-opacity="0.82">
+    <text x="64" y="238">Одностраничный визуальный срез сцены:</text>
+    <text x="64" y="268">шесть релизов, эстетика и цифры.</text>
+  </g>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" letter-spacing="2">
+    <rect x="64" y="304" width="132" height="38" rx="19" fill="#5bb9ff" fill-opacity="0.12" stroke="#5bb9ff" stroke-opacity="0.4"/>
+    <text x="130" y="329" text-anchor="middle" fill="#9ad9ff">СТАТИКА</text>
+
+    <rect x="208" y="304" width="182" height="38" rx="19" fill="#5bb9ff" fill-opacity="0.12" stroke="#5bb9ff" stroke-opacity="0.4"/>
+    <text x="299" y="329" text-anchor="middle" fill="#9ad9ff">HTML/CSS/JS</text>
+
+    <rect x="402" y="304" width="196" height="38" rx="19" fill="#5bb9ff" fill-opacity="0.12" stroke="#5bb9ff" stroke-opacity="0.4"/>
+    <text x="500" y="329" text-anchor="middle" fill="#9ad9ff">БЕЗ СБОРКИ</text>
+  </g>
+
+  <!-- project proof: stream ledger from the page -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <line x1="676" y1="64" x2="676" y2="360" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="716" y="98" font-size="18" letter-spacing="3" fill="#ffffff" fill-opacity="0.6">// ПРОСЛУШИВАНИЯ, SPOTIFY</text>
+
+    <g font-size="18">
+      <g transform="translate(0 136)">
+        <text x="716" fill="#ffffff" fill-opacity="0.9">LXNER — ЛЁД</text>
+        <rect x="878" y="-13" width="148" height="14" rx="7" fill="url(#bar)"/>
+        <text x="1136" text-anchor="end" fill="#5bb9ff">40 235 814</text>
+      </g>
+      <g transform="translate(0 176)">
+        <text x="716" fill="#ffffff" fill-opacity="0.9">RIZZA — ПЛАЧЬ</text>
+        <rect x="878" y="-13" width="126" height="14" rx="7" fill="url(#bar)"/>
+        <text x="1136" text-anchor="end" fill="#5bb9ff">34 353 779</text>
+      </g>
+      <g transform="translate(0 216)">
+        <text x="716" fill="#ffffff" fill-opacity="0.9">QUIIZZZMEOW</text>
+        <rect x="878" y="-13" width="107" height="14" rx="7" fill="url(#bar)"/>
+        <text x="1136" text-anchor="end" fill="#5bb9ff">29 126 066</text>
+      </g>
+      <g transform="translate(0 256)">
+        <text x="716" fill="#ffffff" fill-opacity="0.9">SQWORE — EVE</text>
+        <rect x="878" y="-13" width="64" height="14" rx="7" fill="url(#bar)"/>
+        <text x="1136" text-anchor="end" fill="#5bb9ff">17 267 626</text>
+      </g>
+      <g transform="translate(0 296)">
+        <text x="716" fill="#ffffff" fill-opacity="0.9">TREEPSIDE</text>
+        <rect x="878" y="-13" width="23" height="14" rx="7" fill="url(#bar)"/>
+        <text x="1136" text-anchor="end" fill="#5bb9ff">6 254 475</text>
+      </g>
+      <g transform="translate(0 336)">
+        <text x="716" fill="#ffffff" fill-opacity="0.9">17 SEVENTEEN</text>
+        <rect x="878" y="-13" width="21" height="14" rx="7" fill="url(#bar)"/>
+        <text x="1136" text-anchor="end" fill="#5bb9ff">5 732 527</text>
+      </g>
+    </g>
+  </g>
+</svg>
