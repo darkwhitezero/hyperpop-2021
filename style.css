@@ -355,6 +355,12 @@ h1.glitch-large {
     opacity: 0.7;
 }
 
+.section-head .stats-updated {
+    margin-top: 0.45rem;
+    font-size: 0.75rem;
+    opacity: 0.55;
+}
+
 .artists-section {
     padding-bottom: 3rem;
 }

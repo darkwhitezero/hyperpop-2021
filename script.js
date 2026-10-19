@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 1. Анимация счетчиков
     const countTargets = document.querySelectorAll('.count-up');
+    const streamCounters = document.querySelectorAll('.count-up[data-spotify-track-id], .count-up[data-spotify-track-name]');
     const numberFormatter = new Intl.NumberFormat('ru-RU');
 
     const setCounterValue = (el, value) => {
@@ -28,16 +29,40 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
 
-            document.querySelectorAll('.count-up[data-spotify-track-id], .count-up[data-spotify-track-name]')
-                .forEach((counter) => {
-                    const track = counter.dataset.spotifyTrackId
-                        ? tracks[counter.dataset.spotifyTrackId]
-                        : byName.get(counter.dataset.spotifyTrackName.trim().toLocaleLowerCase('ru-RU'));
-                    const playcount = Number(track?.playcount);
-                    if (Number.isSafeInteger(playcount) && playcount >= 0) {
-                        counter.dataset.count = String(playcount);
-                    }
+            let updatedStreamCount = 0;
+            streamCounters.forEach((counter) => {
+                const track = counter.dataset.spotifyTrackId
+                    ? tracks[counter.dataset.spotifyTrackId]
+                    : byName.get(counter.dataset.spotifyTrackName.trim().toLocaleLowerCase('ru-RU'));
+                const playcount = Number(track?.playcount);
+                if (Number.isSafeInteger(playcount) && playcount >= 0) {
+                    counter.dataset.count = String(playcount);
+                    updatedStreamCount += 1;
+                }
+            });
+
+            const streamCounts = Array.from(streamCounters, (counter) => Number(counter.dataset.count));
+            if (updatedStreamCount === streamCounters.length && streamCounts.length > 0 && streamCounts.every(Number.isSafeInteger)) {
+                const totalStreams = streamCounts.reduce((total, count) => total + count, 0);
+                const averageStreams = Math.round(totalStreams / streamCounts.length);
+                const totalCounter = document.querySelector('[data-stat="total-streams"]');
+                const averageCounter = document.querySelector('[data-stat="average-per-release"]');
+
+                if (totalCounter && averageCounter) {
+                    totalCounter.dataset.count = String(totalStreams);
+                    averageCounter.dataset.count = String(averageStreams);
+                }
+            }
+
+            const updatedAt = new Date(playcountData.updatedAt);
+            const updatedLabel = document.querySelector('#streams-updated');
+            if (updatedLabel && Number.isFinite(updatedAt.getTime())) {
+                const dateFormatter = new Intl.DateTimeFormat('ru-RU', {
+                    dateStyle: 'medium',
+                    timeStyle: 'short',
                 });
+                updatedLabel.textContent = `Обновлено: ${dateFormatter.format(updatedAt)}`;
+            }
         }
     } catch (error) {
         console.warn('Spotify playcounts are unavailable; using the page defaults.', error);
