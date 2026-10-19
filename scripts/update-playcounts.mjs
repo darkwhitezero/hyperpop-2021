@@ -6,10 +6,9 @@ const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const configPath = resolve(projectRoot, 'scripts/tracks-config.json');
 const outputPath = resolve(projectRoot, 'assets/data/playcounts.json');
 const tokenUrl = 'https://open.spotify.com/get_access_token?reason=transport&productType=web_player';
-const queryUrl = 'https://api-partner.spotify.com/pathfinder/v1/query';
-const queryHash = '46ae954ef2d2fe7732b4b2b4022157b3e18803572f94907e3163756c7c477032';
+const queryUrl = 'https://api-partner.spotify.com/pathfinder/v2/query';
+const getTrackHash = '612585ae06ba435ad26369870deaae23b5c8800a256cd8a57e08eddc25a37294';
 const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
-const pageSize = 300;
 
 async function fetchJson(url, options = {}) {
     const response = await fetch(url, options);
@@ -31,92 +30,95 @@ async function getAccessToken() {
     return tokenResponse.accessToken;
 }
 
-async function fetchAlbumTracks(albumId, accessToken) {
-    const tracks = [];
-    let offset = 0;
+function findRequestedTrack(value, expectedUri) {
+    if (!value || typeof value !== 'object') return null;
 
-    while (true) {
-        const params = new URLSearchParams({
-            operationName: 'queryAlbumTracks',
-            variables: JSON.stringify({
-                uri: `spotify:album:${albumId}`,
-                offset,
-                limit: pageSize,
-            }),
-            extensions: JSON.stringify({
-                persistedQuery: { version: 1, sha256Hash: queryHash },
-            }),
-        });
-
-        const payload = await fetchJson(`${queryUrl}?${params}`, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'User-Agent': userAgent,
-            },
-        });
-
-        const page = payload?.data?.album?.tracks?.items;
-        if (!Array.isArray(page)) {
-            throw new Error('Spotify response did not include album track items');
-        }
-
-        tracks.push(...page);
-        if (page.length < pageSize) break;
-        offset += page.length;
+    if (
+        value.uri === expectedUri
+        && typeof value.name === 'string'
+        && Number.isSafeInteger(Number(value.playcount))
+    ) {
+        return value;
     }
 
-    return tracks;
+    for (const child of Object.values(value)) {
+        const track = findRequestedTrack(child, expectedUri);
+        if (track) return track;
+    }
+
+    return null;
 }
 
-function getTrackId(uri) {
-    if (typeof uri !== 'string') return null;
-    const match = uri.match(/^spotify:track:([A-Za-z0-9]+)$/);
-    return match?.[1] ?? null;
+async function fetchTrack(trackId, accessToken) {
+    const expectedUri = `spotify:track:${trackId}`;
+    const payload = await fetchJson(queryUrl, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            Origin: 'https://open.spotify.com',
+            Referer: 'https://open.spotify.com/',
+            'User-Agent': userAgent,
+        },
+        body: JSON.stringify({
+            operationName: 'getTrack',
+            variables: { uri: expectedUri },
+            extensions: {
+                persistedQuery: { version: 1, sha256Hash: getTrackHash },
+            },
+        }),
+    });
+
+    if (Array.isArray(payload.errors) && payload.errors.length > 0) {
+        throw new Error(payload.errors.map(({ message }) => message).join('; '));
+    }
+
+    const track = findRequestedTrack(payload.data, expectedUri);
+    if (!track) {
+        throw new Error('Spotify response did not include a valid playcount for the requested track');
+    }
+
+    return { name: track.name, playcount: Number(track.playcount) };
 }
 
 async function main() {
     const config = JSON.parse(await readFile(configPath, 'utf8'));
-    if (!Array.isArray(config)) {
-        throw new Error('scripts/tracks-config.json must contain an array of releases');
+    if (!Array.isArray(config) || config.length === 0) {
+        throw new Error('scripts/tracks-config.json must contain at least one track');
     }
 
-    // A token is required for every album request. If this fails, do not replace
-    // the previously published counts with an empty or partial result.
+    const trackIds = config.map((release) => release?.trackId);
+    if (trackIds.some((trackId) => typeof trackId !== 'string' || !/^[A-Za-z0-9]{22}$/.test(trackId))) {
+        throw new Error('Every release in scripts/tracks-config.json must have a valid trackId');
+    }
+    if (new Set(trackIds).size !== trackIds.length) {
+        throw new Error('scripts/tracks-config.json contains duplicate trackId values');
+    }
+
+    // Do not overwrite published counts when Spotify cannot issue an access token.
     const accessToken = await getAccessToken();
     const tracks = {};
+    const failures = [];
 
     for (const release of config) {
-        if (typeof release?.albumId !== 'string' || release.albumId.length === 0) {
-            console.error(`Skipping invalid release entry: ${release?.name ?? '(unnamed)'}`);
-            continue;
-        }
-
         try {
-            const albumTracks = await fetchAlbumTracks(release.albumId, accessToken);
-            for (const item of albumTracks) {
-                const track = item?.track ?? item;
-                const id = getTrackId(track?.uri);
-                const playcount = Number(track?.playcount);
-                if (!id || typeof track?.name !== 'string' || !Number.isSafeInteger(playcount) || playcount < 0) {
-                    continue;
-                }
-
-                tracks[id] = { name: track.name, playcount };
-            }
-            console.log(`Loaded ${albumTracks.length} track(s): ${release.name ?? release.albumId}`);
+            tracks[release.trackId] = await fetchTrack(release.trackId, accessToken);
+            console.log(`Loaded: ${release.name ?? release.trackId}`);
         } catch (error) {
-            console.error(`Could not load ${release.name ?? release.albumId}: ${error.message}`);
+            failures.push(`${release.name ?? release.trackId}: ${error.message}`);
+            console.error(`Could not load ${release.name ?? release.trackId}: ${error.message}`);
         }
+    }
+
+    if (failures.length > 0 || Object.keys(tracks).length !== config.length) {
+        throw new Error(
+            `Expected ${config.length} track counts, received ${Object.keys(tracks).length}. ${failures.join(' | ')}`,
+        );
     }
 
     await mkdir(dirname(outputPath), { recursive: true });
     await writeFile(outputPath, `${JSON.stringify({ updatedAt: new Date().toISOString(), tracks }, null, 2)}\n`, 'utf8');
     console.log(`Wrote ${Object.keys(tracks).length} track count(s) to assets/data/playcounts.json`);
-    if (Object.keys(tracks).length !== config.length) {
-    throw new Error(
-        `Expected ${config.length} track counts, received ${Object.keys(tracks).length}`
-    );
-}
 }
 
 main().catch((error) => {
