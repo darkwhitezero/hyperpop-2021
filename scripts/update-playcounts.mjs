@@ -112,6 +112,11 @@ async function main() {
     await mkdir(dirname(outputPath), { recursive: true });
     await writeFile(outputPath, `${JSON.stringify({ updatedAt: new Date().toISOString(), tracks }, null, 2)}\n`, 'utf8');
     console.log(`Wrote ${Object.keys(tracks).length} track count(s) to assets/data/playcounts.json`);
+    if (Object.keys(tracks).length !== config.length) {
+    throw new Error(
+        `Expected ${config.length} track counts, received ${Object.keys(tracks).length}`
+    );
+}
 }
 
 main().catch((error) => {

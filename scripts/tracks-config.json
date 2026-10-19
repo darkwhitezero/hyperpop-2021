@@ -1,26 +1,8 @@
 [
-  {
-    "name": "SQWORE - ЗВЕЗДА УПАЛА",
-    "albumId": "39snjPFl16gzKojy0nYxrt"
-  },
-  {
-    "name": "17 SEVENTEEN - СЕРДЦЕ",
-    "albumId": "2SBHnbaJdUwhePjp5eEvgn"
-  },
-  {
-    "name": "RIZZA - ПЛАЧЬ",
-    "albumId": "4eldXrHCWI5DZTCOJ76Amr"
-  },
-  {
-    "name": "QUIIZZZMEOW - AOMINE DAIKI",
-    "albumId": "37yN0KkJCQ1d9vlxEjbBlX"
-  },
-  {
-    "name": "TREEPSIDE - USB (17 SEVENTEEN REMIX)",
-    "albumId": "2feVO08HAtBx0zBqlyOGGO"
-  },
-  {
-    "name": "LXNER, WENARO - ЛЁД",
-    "albumId": "7CMV5bdIXxN4SB0W6wzHDW"
-  }
+  { "name": "SQWORE - ЗВЕЗДА УПАЛА", "trackId": "39snjPFl16gzKojy0nYxrt" },
+  { "name": "17 SEVENTEEN - СЕРДЦЕ", "trackId": "2SBHnbaJdUwhePjp5eEvgn" },
+  { "name": "RIZZA - ПЛАЧЬ", "trackId": "3yCKABoZU3FVFuyVBc5VlM" },
+  { "name": "QUIIZZZMEOW - AOMINE DAIKI", "trackId": "37yN0KkJCQ1d9vlxEjbBlX" },
+  { "name": "TREEPSIDE - USB (17 SEVENTEEN REMIX)", "trackId": "2feVO08HAtBx0zBqlyOGGO" },
+  { "name": "LXNER, WENARO - ЛЁД", "trackId": "7CMV5bdIXxN4SB0W6wzHDW" }
 ]
