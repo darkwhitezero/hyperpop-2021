@@ -19,6 +19,10 @@ async function fetchJson(url, options = {}) {
 }
 
 async function getAccessToken() {
+    if (typeof process.env.SPOTIFY_ACCESS_TOKEN === 'string' && process.env.SPOTIFY_ACCESS_TOKEN.length > 0) {
+        return process.env.SPOTIFY_ACCESS_TOKEN;
+    }
+
     const tokenResponse = await fetchJson(tokenUrl, {
         headers: { 'User-Agent': userAgent },
     });

@@ -10,13 +10,25 @@ permissions:
 
 jobs:
   update-streams:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Get Spotify web-player token
+        shell: pwsh
+        run: |
+          $headers = @{ 'User-Agent' = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36' }
+          $html = (Invoke-WebRequest -UseBasicParsing -Headers $headers 'https://open.spotify.com/embed/track/39snjPFl16gzKojy0nYxrt').Content
+          $match = [regex]::Match($html, '<script id="__NEXT_DATA__" type="application/json">(?<json>.*?)</script>')
+          if (-not $match.Success) { throw 'Spotify embed page did not include session data.' }
+          $pageData = $match.Groups['json'].Value | ConvertFrom-Json -Depth 100
+          $accessToken = $pageData.props.pageProps.state.settings.session.accessToken
+          if ([string]::IsNullOrWhiteSpace($accessToken)) { throw 'Spotify embed page did not include an access token.' }
+          "SPOTIFY_ACCESS_TOKEN=$accessToken" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Update playcounts
         run: node scripts/update-playcounts.mjs
