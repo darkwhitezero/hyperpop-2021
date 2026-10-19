@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // 1. Анимация счетчиков
@@ -10,6 +10,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const suffix = el.dataset.suffix || '';
         el.textContent = `${prefix}${numberFormatter.format(value)}${suffix}`;
     };
+
+    // The published data is optional: when it is missing or unavailable, the
+    // existing data-count values remain the source for the counters below.
+    try {
+        const response = await fetch('assets/data/playcounts.json', { cache: 'no-cache' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const playcountData = await response.json();
+        const tracks = playcountData?.tracks;
+        if (tracks && typeof tracks === 'object') {
+            const byName = new Map();
+            Object.values(tracks).forEach((track) => {
+                if (typeof track?.name === 'string' && Number.isFinite(Number(track.playcount))) {
+                    const normalizedName = track.name.trim().toLocaleLowerCase('ru-RU');
+                    if (!byName.has(normalizedName)) byName.set(normalizedName, track);
+                }
+            });
+
+            document.querySelectorAll('.count-up[data-spotify-track-id], .count-up[data-spotify-track-name]')
+                .forEach((counter) => {
+                    const track = counter.dataset.spotifyTrackId
+                        ? tracks[counter.dataset.spotifyTrackId]
+                        : byName.get(counter.dataset.spotifyTrackName.trim().toLocaleLowerCase('ru-RU'));
+                    const playcount = Number(track?.playcount);
+                    if (Number.isSafeInteger(playcount) && playcount >= 0) {
+                        counter.dataset.count = String(playcount);
+                    }
+                });
+        }
+    } catch (error) {
+        console.warn('Spotify playcounts are unavailable; using the page defaults.', error);
+    }
 
     const animateValue = (el, start, end, duration) => {
         let startTimestamp = null;

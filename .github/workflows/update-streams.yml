@@ -1,0 +1,34 @@
+name: Update Spotify stream counts
+
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-streams:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Update playcounts
+        run: node scripts/update-playcounts.mjs
+
+      - name: Commit and push changed counts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/data/playcounts.json
+          if git diff --cached --quiet -- assets/data/playcounts.json; then
+            echo "No playcount changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: update spotify stream counts [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
