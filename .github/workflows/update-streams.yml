@@ -28,12 +28,14 @@ jobs:
           $pageData = $match.Groups['json'].Value | ConvertFrom-Json -Depth 100
           $accessToken = $pageData.props.pageProps.state.settings.session.accessToken
           if ([string]::IsNullOrWhiteSpace($accessToken)) { throw 'Spotify embed page did not include an access token.' }
+          Write-Output "::add-mask::$accessToken"
           "SPOTIFY_ACCESS_TOKEN=$accessToken" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Update playcounts
         run: node scripts/update-playcounts.mjs
 
       - name: Commit and push changed counts
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
